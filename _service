@@ -1,0 +1,51 @@
+<services>
+    <service name="obs_scm">
+        <param name="url">https://github.com/lunarmodules/luafilesystem</param>
+        <param name="scm">git</param>
+        <param name="revision">master</param>
+        <param name="without-version">enable</param>
+        <param name="versionformat">@PARENT_TAG@</param>
+        <param name="versionrewrite-pattern">v(.*)</param>
+    </service>
+  
+    <service name="perl_regex" mode="buildtime">
+        <param name="regex">
+if (index($_, 'version: ') == 0) {
+    $_ =~ s/_/\./g;
+    $_ = "$_-1";
+} 
+        </param>
+        <param name="file">luafilesystem.obsinfo</param>
+    </service>
+    <service name="perl_regex" mode="buildtime">
+        <param name="regex">
+if (index($_, 'version: ') == 0) {
+    $_ = 'version="' . substr($_, 9, length($_) - 10) . '-1"';
+} else {
+    $_ = '';
+}</param>
+        <param name="file">luafilesystem.obsinfo</param>
+        <param name="outfile">luafilesystem.obsnext</param>
+    </service>
+    <service name="lua2pack_generate" mode="buildtime">
+        <param name="rockspec">glob://./luafilesystem/luafilesystem-scm-1.rockspec</param>
+        <param name="rockspec">glob://./luafilesystem.obsnext</param>
+        <param name="template">rock.rockspec</param>
+    </service>
+    <service name="lua2pack_generate" mode="buildtime">
+        <param name="rockspec">glob://./*.rockspec</param>
+        <param name="template">obs.obsinfo</param>
+    </service>
+    <service name="lua2pack_generate" mode="buildtime">
+        <param name="rockspec">glob://./*.rockspec</param>
+        <param name="template">generic.spec</param>
+        <param name="luacode">
+description.homepage='https://github.com/lunarmodules/luafilesystem'
+</param>
+    </service>
+    <service name="tar" mode="buildtime"/>
+    <service name="recompress" mode="buildtime">
+        <param name="file">*.tar</param>
+        <param name="compression">gz</param>
+    </service>
+</services>
